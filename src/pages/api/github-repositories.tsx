@@ -1,6 +1,6 @@
 import { Context } from "hono";
 import { GithubAccount } from "./github-account";
-import { API_INIT, DURATION } from "../api";
+import { API_INIT, API_UPDATE_DURATION } from "../api";
 
 const GIT_KEY: string = "GithubRepository";
 
@@ -13,9 +13,9 @@ export async function GithubRepo(c: Context): Promise<GitHubRepository[] | null>
         timestamp: number
     } | null;
 
-    const now = Date.now()
+    const now = Date.now();
 
-    if (cached && now - cached.timestamp < DURATION) {
+    if (cached && now - cached.timestamp < API_UPDATE_DURATION) {
         return cached.data;
     }
 

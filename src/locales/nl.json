@@ -2,10 +2,11 @@
     "homepage": {
         "title": "Thuispagina",
         "content": "Thuispagina van de website",
+        "repositories": "Projecten:",
         "norepositories": "Kon de repositories van Github niet laden",
         "noaccount": "Kon het github account niet laden" 
     },
     "header": {
-        "logotext": "Hono"
+        "logotext": "Home"
     }
 }

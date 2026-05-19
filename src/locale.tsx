@@ -3,8 +3,8 @@ import en from './locales/en.json';
 import nl from './locales/nl.json';
 import { Env } from ".";
 
-type serializedLocale = { 
-    name: string, 
+type serializedLocale = {
+    name: string,
     data: typeof en
 }
 
@@ -19,17 +19,13 @@ type Locale = {
      * Localization interface.
      * 
      * Can safely fetch strings, or unsafely return Objects with specific types.
-     * 
-     * @param path the string key to look up in the localization data.
-     * 
+     * @param path the string key to look up in the localization data. 
      * @param asObject if true, the overload will unsafe cast the result as the given type `T`.
-     * 
      * @template T the type to cast the result to if `asObject` is set to true.
-     * 
      * @returns `string | T`, wether it's `T` depends on the `asObject` parameter.
      * 
      * Example:
-     * ```
+     * ```ts
      * const text = msg("path.text"); // Safely gets a string
      * console.log(`${text}`);
      * 
@@ -46,15 +42,14 @@ const localeList: serializedLocale[] = [
 ];
 
 /**
- * 
  * @param type error type
  * @param locale given locale
  * @param path given text path
  * @returns throws an error specific to the given type.
  */
 function localeError(
-    type: 'missing' | 'object' | 'request', 
-    locale: string | null, 
+    type: 'missing' | 'object' | 'request',
+    locale: string | null,
     path = ''
 ): never {
     switch (type) {
@@ -68,13 +63,12 @@ function localeError(
 };
 
 /**
- * 
  * @returns Map<> containing the Key's of all given locales and the Value is the JSON itself.
  */
 function mapLocales(): Map<string, typeof en> {
     let localeMap = new Map<string, typeof en>();
     // const localeList = serializeLocales();
-    localeList.forEach(({name, data}) => {
+    localeList.forEach(({ name, data }) => {
         localeMap.set(name, data);
     });
     return localeMap;
@@ -145,7 +139,7 @@ class locale {
         const locale = context.var.locale;
 
         if (!locale) localeError('request', locale);
-        
+
         const dataLocale = this.data.get(locale);
         if (!dataLocale) localeError('missing', locale);
 
@@ -161,7 +155,7 @@ class locale {
                     .reduce(
                         (current, key) =>
                             current &&
-                            typeof current === "object"
+                                typeof current === "object"
                                 ? (current as Record<string, unknown>)[key]
                                 : undefined,
                         dataLocale as unknown
@@ -169,7 +163,7 @@ class locale {
 
                 if (object) {
                     return object as T;
-                } else { 
+                } else {
                     throw localeError('object', locale);;
                 }
             }

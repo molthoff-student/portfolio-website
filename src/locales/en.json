@@ -2,10 +2,11 @@
     "homepage": {
         "title": "Homepage",
         "content": "Homepage of the website",
+        "repositories": "Projects:",
         "norepositories": "Failed to load github repositories",
         "noaccount": "Failed to load github account" 
     },
     "header": {
-        "logotext": "Hono"
+        "logotext": "Home"
     }
 }

@@ -27,11 +27,11 @@ export async function HomePage(c: Context) {
     const repositories = await GithubRepo(c);
     
     const accountRender = account
-        ?   <p>{account.login}</p>
-        :   <p>{msg('')}</p>
+        ?   <h2>{account.login}</h2>
+        :   <h2>{msg('homepage.noaccount')}</h2>
 
     const repositoriesRender = repositories
-        ?   <ul>
+        ?   <ul><h3>{msg('homepage.repositories')}</h3>
                 {repositories!.map(repo => (
                     <a style={linkStyle} href={repo.html_url}>
                         <li key={repo.id || repo.full_name}>
@@ -51,7 +51,6 @@ export async function HomePage(c: Context) {
             style={pageStyle}
         >
             <CommonHeader />
-            <p>{msg('homepage.content')}</p>
             {accountRender}
             {repositoriesRender}
         </Meta>

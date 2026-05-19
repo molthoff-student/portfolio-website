@@ -1,5 +1,5 @@
 import { Context } from "hono";
-import { API_INIT, DURATION } from "../api";
+import { API_INIT, API_UPDATE_DURATION } from "../api";
 
 const API_URL: string = "https://api.github.com/users/molthoff-student";
 const GIT_KEY: string = "GithubAccount";
@@ -13,9 +13,9 @@ export async function GithubAccount(c: Context): Promise<GitHubUser | null> {
         timestamp: number
     };
 
-    const now = Date.now()
+    const now = Date.now();
 
-    if (cached && now - cached.timestamp < DURATION) {
+    if (cached && now - cached.timestamp < API_UPDATE_DURATION) {
         return cached.data;
     }
 

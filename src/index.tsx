@@ -7,6 +7,7 @@ import { HomePage } from './pages/homepage';
 import { GithubAccountPage } from './pages/api/github-account';
 import { GithubRepoPage } from './pages/api/github-repositories';
 import { GithubSummaryPage } from './pages/api/github-summary';
+import { trimTrailingSlash } from 'hono/trailing-slash';
 
 // Add wrapper for jsx to the Context object.
 declare module 'hono' {
@@ -22,7 +23,10 @@ export type Env = {
     KVData: KVNamespace
 }
 
-const index = new Hono<Env>()
+const index = new Hono<Env>();
+
+// Import to remove trailing slashes from url's automatically.
+index.use(trimTrailingSlash());
 
 // Adds contextStorage middleware for storing and accessing the context.
 index.use(contextStorage());
@@ -33,6 +37,8 @@ index.use('*', async (c, next) => {
         const pageData = renderToString(jsx);
         return c.html(`<!DOCTYPE html>\n${pageData}`)
     }
+
+    const path = c.req.path;
 
     await next()
 });
@@ -73,7 +79,6 @@ type Page = {
 
 const pages: Page[] = [
     { url: '/:locale', response: HomePage },
-    { url: '/:locale/home', response: HomePage },
     { url: '/api/github', response: GithubAccountPage },
     { url: '/api/repositories', response: GithubRepoPage },
     { url: '/api/summary', response: GithubSummaryPage },

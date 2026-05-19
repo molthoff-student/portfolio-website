@@ -10,9 +10,7 @@
         "directory": "./public"
     },
     "kv_namespaces": [
-        {
-            "binding": "KVData",
-            "id": "GithubAccount"
-        }
+        { "binding": "KVData", "id": "GithubAccount" },
+        { "binding": "KVData", "id": "GithubRepository" }
     ],
 }
