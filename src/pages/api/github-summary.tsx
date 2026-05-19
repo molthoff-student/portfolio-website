@@ -2,8 +2,6 @@ import { Context } from "hono";
 import { GithubAccount } from "./github-account";
 import { GithubRepo } from "./github-repositories";
 
-const DURATION: number = 60_000;
-
 // Fetcher function
 export async function GithubSummary(c: Context): Promise<GithubSummary | null> {
     const account = await GithubAccount(c);
@@ -21,6 +19,7 @@ export async function GithubSummary(c: Context): Promise<GithubSummary | null> {
                 name: repo.name,
                 url: repo.html_url,
                 description: repo.description,
+                language: repo.language,
                 created_at: repo.created_at
             }))
         }
@@ -45,7 +44,8 @@ export interface GithubSummary {
     repositories: {
         name: string,
         url: string,
-        description: string | null
+        description: string | null,
+        language: string | null,
         created_at: string
     }[]
 }
