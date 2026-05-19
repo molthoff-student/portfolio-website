@@ -1,38 +1,54 @@
-import { Hono } from 'hono'
+import { Context, Hono } from 'hono'
 import locales from './locale'
-import { app } from './app'
+import { JSX } from 'hono/jsx/jsx-runtime'
 import { contextStorage } from 'hono/context-storage';
+import { renderToString } from 'hono/jsx/dom/server';
+import { HomePage } from './pages/homepage';
+import { GithubAccountPage } from './pages/api/github-account';
+import { GithubRepoPage } from './pages/api/github-repositories';
+import { GithubSummaryPage } from './pages/api/github-summary';
 
-export function isDevEnv(): boolean {
-    return process.env.NODE_ENV !== 'production';
+// Add wrapper for jsx to the Context object.
+declare module 'hono' {
+    interface Context {
+        jsx: (jsx: JSX.Element) => Response
+    }
 }
-console.log(`Is development build: ${isDevEnv()}`);
 
 export type Env = {
     Variables: {
-        locale: string
+        locale: string,
     }
+    KVData: KVNamespace
 }
 
 const index = new Hono<Env>()
 
+// Adds contextStorage middleware for storing and accessing the context.
 index.use(contextStorage());
 
+// Implement jsx wrapper.
+index.use('*', async (c, next) => {
+    c.jsx = (jsx: JSX.Element) => {
+        const pageData = renderToString(jsx);
+        return c.html(`<!DOCTYPE html>\n${pageData}`)
+    }
+
+    await next()
+});
+
+// Implement locale slug.
 index.use('/:locale/*', async (c, next) => {
     const locale = c.req.param('locale');
 
-    if (!(locales.has(locale))) {
-        console.log(`invalid locale: ${locale}`);
-        return c.notFound()
+    if (locales.has(locale)) {
+        c.set('locale', locale);
     }
 
-    c.set('locale', locale);
-    
     await next()
 })
 
-index.route('/:locale', app);
-
+// Try to fetch the user's locale.
 index.get('/', (c) => {
     const language = c.req.header('accept-language');
 
@@ -46,7 +62,25 @@ index.get('/', (c) => {
         }
     }
 
-    return c.redirect('/en')
-})
+    return c.redirect(locales.default())
+});
 
-export default index
+type PageResponse = ((c: Context) => Response) | ((c: Context) => Promise<Response>);
+type Page = {
+    url: string,
+    response: PageResponse,
+}
+
+const pages: Page[] = [
+    { url: '/:locale', response: HomePage },
+    { url: '/:locale/home', response: HomePage },
+    { url: '/api/github', response: GithubAccountPage },
+    { url: '/api/repositories', response: GithubRepoPage },
+    { url: '/api/summary', response: GithubSummaryPage },
+];
+
+pages.forEach(page => {
+    index.get(page.url, page.response)
+});
+
+export default index;

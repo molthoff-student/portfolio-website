@@ -1,24 +1,38 @@
-import info from "../site-information.json";
-import type { JSX } from 'hono/jsx';
-import { Link } from "./link";
+import locale from "../locale";
 
-export const headerStyle: JSX.HTMLAttributes['style'] = {
-    left: 0,
-    top: 0,
-    position: 'sticky',
+const exampleLogo = "../assets/placeholder.png";
+
+export const linkStyle = {    
     display: 'flex',
-    height: 'fit-content',
-    width: '100%',
+    alignItems: 'center',
+    gap: '8px',
+    textDecoration: 'none',
+    fontW: 'bold',
+}
+
+const imageStyle = {
+    width: '32px', 
+    height: '32px'
 }
 
 export function CommonHeader() {
-    
+    const { msg } = locale.use();
+    const logoText = msg('header.logotext');
+
+    const textStyle = { color: 'var(--text)' };
     return (
-        <header style={headerStyle}>
-            <Link class="title" link="/">
-                <img class="title" src="/assets/placeholder.png" />
-                <span>Test</span>
-            </Link>
-        </header>
+        <>
+            <header class="header">
+                <a className="title" href="/" style={linkStyle}>
+                    <img
+                        className="title" 
+                        alt="Example logo" 
+                        src={exampleLogo}
+                        style={imageStyle}
+                    />
+                    <span style={textStyle}>{logoText}</span>
+                </a>
+            </header>
+        </>
     );
 }

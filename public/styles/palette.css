@@ -1,0 +1,38 @@
+[user-theme] {
+    --success: rgb(62, 165, 48);
+    --warning: rgb(210, 104, 18);
+    --error: rgb(187, 37, 37);
+}
+
+[user-theme="light"] {
+    --primary: rgba(100, 100, 100, 1);
+    --secondary: rgba(100, 100, 100, 1);
+    --accent: rgb(230, 230, 230);
+    --background: rgba(255, 255, 255, 1);
+    --surface: rgba(100, 100, 100, 1);
+    --border: rgba(100, 100, 100, 1);
+    --text: rgb(40, 40, 40);
+}
+
+[user-theme="dark"] {
+    --primary: rgba(100, 100, 100, 1);
+    --secondary: rgba(100, 100, 100, 1);
+    --accent: rgba(40, 40, 40, 1);
+    --background: rgba(30, 30, 30, 1);
+    --surface: rgba(100, 100, 100, 1);
+    --border: rgb(66, 66, 66);
+    --text: rgb(255, 255, 255);
+}
+
+.header {
+    left: 0;
+    top: 0;
+    position: sticky;
+    display: flex;
+    height: fit-content;
+    width: 100%;
+    align-items: 'center';
+    padding-top: 8px;
+    padding-bottom: 8px;
+    background: var(--accent);
+}

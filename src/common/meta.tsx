@@ -1,6 +1,6 @@
-import { isDevEnv } from "..";
+import { JSX } from "hono/jsx";
 
-const isDev = isDevEnv();
+const isDev = process.env.NODE_ENV !== 'production';
 
 const DEFAULT = {
     VIEWPORT: "width=device-width, initial-scale=1",
@@ -16,6 +16,7 @@ export type MetaProperties = {
     author?: string,
     locale?: string,
     children?: any,
+    style?: JSX.HTMLAttributes['style']
 }
 
 export const Meta = (
@@ -27,7 +28,8 @@ export const Meta = (
         keywords,
         author,
         locale,
-        children
+        children,
+        style,
     }: MetaProperties
 ) => {
     return (
@@ -41,9 +43,11 @@ export const Meta = (
                     {keywords && <meta name="keywords" content={keywords} />}
                     {author && <meta name="author" content={author} />}
                     {isDev && <script type="module" src="/@vite/client" defer />}
-                    <link href={isDev ? '/src/style.css' : '/assets/style.css'} rel="stylesheet" />
+                    {/* <link href={isDev ? '/src/style.css' : '/assets/style.css'} rel="stylesheet" /> */}
+                    <link rel="stylesheet" href="../styles/palette.css" />
                 </head>
-                <body>{children}</body>
+                <script src="../scripts/get-system-theme.js" />
+                <body style={style}>{children}</body>
             </html>
         </>
     )

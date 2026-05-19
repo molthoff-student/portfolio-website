@@ -1,8 +1,11 @@
 {
-    "meta": {
-        "homePage": {
-            "title": "Thuispagina",
-            "content": "Thuispagina van de website"
-        }
+    "homepage": {
+        "title": "Thuispagina",
+        "content": "Thuispagina van de website",
+        "norepositories": "Kon de repositories van Github niet laden",
+        "noaccount": "Kon het github account niet laden" 
+    },
+    "header": {
+        "logotext": "Hono"
     }
 }

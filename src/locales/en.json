@@ -1,8 +1,11 @@
 {
-    "meta": {
-        "homePage": {
-            "title": "Homepage",
-            "content": "Homepage of the website"
-        }
+    "homepage": {
+        "title": "Homepage",
+        "content": "Homepage of the website",
+        "norepositories": "Failed to load github repositories",
+        "noaccount": "Failed to load github account" 
+    },
+    "header": {
+        "logotext": "Hono"
     }
 }

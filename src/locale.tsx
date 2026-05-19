@@ -1,107 +1,182 @@
-import { Context } from "hono";
+import { getContext } from 'hono/context-storage'
 import en from './locales/en.json';
 import nl from './locales/nl.json';
-import { Env, isDevEnv } from ".";
-
-import { getContext} from 'hono/context-storage'
-
-
-const isDev = isDevEnv();
+import { Env } from ".";
 
 type serializedLocale = { 
     name: string, 
     data: typeof en
 }
 
+type Msg = {
+    (path: string): string;
+    <T>(path: string, asObject: true): T;
+};
+
 type Locale = {
     locale: string,
-    msg: (path: string) => string
+    /**
+     * Localization interface.
+     * 
+     * Can safely fetch strings, or unsafely return Objects with specific types.
+     * 
+     * @param path the string key to look up in the localization data.
+     * 
+     * @param asObject if true, the overload will unsafe cast the result as the given type `T`.
+     * 
+     * @template T the type to cast the result to if `asObject` is set to true.
+     * 
+     * @returns `string | T`, wether it's `T` depends on the `asObject` parameter.
+     * 
+     * Example:
+     * ```
+     * const text = msg("path.text"); // Safely gets a string
+     * console.log(`${text}`);
+     * 
+     * const obj = msg<Object>("path.object", true); // Unsafely gets an object
+     * console.log(`${obj.text}`);
+     * ```
+     */
+    msg: Msg
 }
 
-// const DIRECTORY = './locales/';
-// function serializeLocales(): serializedLocale[] {
-//     if (isDev) {
-//         console.log("Serializing development locales...");
-//         return [
-//             { name: 'en', data: en },
-//             { name: 'nl', data: nl },
-//         ]
-//     }
+const localeList: serializedLocale[] = [
+    { name: 'en-US', data: en },
+    { name: 'nl-NL', data: nl },
+];
 
-//     console.log("Serializing production locales...");
-//     const fileFilter = /^.{2}\.json$/i;
-//     return fs.readdirSync(DIRECTORY, { withFileTypes: true })
-//         .map((file) => {
-//             if (!file.isFile()) return null;
-
-//             const name = file.name;
-//             if (!fileFilter.test(name)) return null;
-
-//             const filePath = DIRECTORY + name;
-//             const buff = fs.readFileSync(filePath, { encoding: 'utf8'});
-//             return {
-//                 name: name.toLowerCase(), 
-//                 data: JSON.parse(buff)
-//             };
-//         })
-//         .filter((file) => file !== null)
-// }
-
-function serializeLocales(): serializedLocale[] {
-    if (isDev) {
-        // console.log("Serializing development locales...");
-        const locales = [
-            { name: 'en', data: en },
-            { name: 'nl', data: nl },
-        ];
-        return locales;
-    } else {
-        // console.log("Serializing production locales...");
-        return [];
+/**
+ * 
+ * @param type error type
+ * @param locale given locale
+ * @param path given text path
+ * @returns throws an error specific to the given type.
+ */
+function localeError(
+    type: 'missing' | 'object' | 'request', 
+    locale: string | null, 
+    path = ''
+): never {
+    switch (type) {
+        case 'missing':
+            throw new Error(`locale '${locale ?? 'null'}' doesn't exist.`);
+        case 'object':
+            throw new Error(`missing object: ${locale ?? 'null'}.${path}`);
+        case 'request':
+            throw new Error('useLocale must be used inside a request');
     }
-}
+};
 
+/**
+ * 
+ * @returns Map<> containing the Key's of all given locales and the Value is the JSON itself.
+ */
 function mapLocales(): Map<string, typeof en> {
     let localeMap = new Map<string, typeof en>();
-    // console.log(`Created locale Map...`);
-    const localeList = serializeLocales();
+    // const localeList = serializeLocales();
     localeList.forEach(({name, data}) => {
-        // console.log(`Adding locale '${name}'...`);
         localeMap.set(name, data);
     });
     return localeMap;
 }
 
+/**
+ * 
+ * @param obj JSON to flatten nested Key's from.
+ * @param prefix Initial prefix for the flattened Key
+ * @returns Record<> containing flattened Key's for faster lookup.
+ */
+function flattenJson(obj: any, prefix = "") {
+    const result: Record<string, string> = {}
 
+    for (const [key, value] of Object.entries(obj)) {
+        const newKey = prefix ? `${prefix}.${key}` : key
+
+        if (typeof value === "object") {
+            Object.assign(result, flattenJson(value, newKey))
+        } else {
+            result[newKey] = value as string
+        }
+    }
+
+    return result
+}
+
+/**
+ * 
+ * @param map Map<> containing locale Key's and JSON data to flatten.
+ * @returns Map containing locale Key's and Record<>'s for quick string lookups.
+ */
+function flattenLocaleMap(map: Map<string, typeof en>): Map<string, Record<string, string>> {
+    const result = new Map<string, Record<string, string>>();
+    map.forEach((localeData, key) => {
+        const flat = flattenJson(localeData);
+        result.set(key, flat);
+    });
+
+    return result
+}
+
+/**
+ * @readonly `data` containing a Map<string, any> with locales and their JSON data.
+ * @readonly `flat` containing a Map<string, Record<>> with locales and flattened JSON Key's.
+ * 
+ * @method `keys()` returns an iterator over all added locales.
+ * @method `has(key: string)` checks if a locale exists.
+ * @method `default()` returns the default locale.
+ * @method `use()` returns the locale and a message lookup function for the locale.
+ */
 class locale {
-    readonly map = mapLocales();
+    // Map<> with locale json objects.
+    readonly data = mapLocales();
+    // Flattens lookup key's for faster lookups on single strings.
+    readonly flat = flattenLocaleMap(this.data);
     keys() {
-        return this.map.keys;
+        return this.data.keys();
     };
     has(key: string): boolean {
-        return this.map.has(key);
+        return this.data.has(key);
     };
+    default(): string {
+        return localeList[0].name;
+    }
     use(): Locale {
         const context = getContext<Env>();
         const locale = context.var.locale;
 
-        if (!locale) {
-            throw new Error('useLocale must be used inside a request');
-        }
+        if (!locale) localeError('request', locale);
         
-        const localeData = this.map.get(locale);
-        if (!localeData) {
-            throw new Error(`missing locale: '${locale}'`);
-        }
+        const dataLocale = this.data.get(locale);
+        if (!dataLocale) localeError('missing', locale);
 
-        const msg = (path: string): string => {
-            return path
-                .split('.')
-                .reduce<any>(
-                    (current, key) => current?.[key], 
-                    localeData
-                ) ?? `locales.${locale}.${path}`;
-        }
+        const flatLocale = this.flat.get(locale);
+        if (!flatLocale) localeError('missing', locale);
+
+        const msg: Msg = <T,>(
+            path: string,
+            asObject?: boolean
+        ): string | T => {
+            if (asObject) {
+                const object = path.split(".")
+                    .reduce(
+                        (current, key) =>
+                            current &&
+                            typeof current === "object"
+                                ? (current as Record<string, unknown>)[key]
+                                : undefined,
+                        dataLocale as unknown
+                    );
+
+                if (object) {
+                    return object as T;
+                } else { 
+                    throw localeError('object', locale);;
+                }
+            }
+
+            const text = flatLocale[path] ?? `${locale}.${path}`;
+            return text;
+        };
 
         return { locale, msg }
     };

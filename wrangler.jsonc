@@ -8,5 +8,11 @@
     "main": "./src/index.tsx",
     "assets": {
         "directory": "./public"
-    }
+    },
+    "kv_namespaces": [
+        {
+            "binding": "KVData",
+            "id": "GithubAccount"
+        }
+    ],
 }
