@@ -4,7 +4,7 @@ const isDev = process.env.NODE_ENV !== 'production';
 
 const DEFAULT_META = {
     VIEWPORT: "width=device-width, initial-scale=1",
-    CHRSET: "utf-8",
+    CHARSET: "utf-8",
 };
 
 /**
@@ -19,7 +19,8 @@ export type MetaProperties = {
     author?: string,
     locale?: string,
     children?: any,
-    style?: JSX.HTMLAttributes['style']
+    bodyStyle?: JSX.HTMLAttributes['style'],
+    bodyClass?: JSX.HTMLAttributes['class']
 }
 
 /**
@@ -35,7 +36,8 @@ export const Meta = (
         author,
         locale,
         children,
-        style,
+        bodyStyle,
+        bodyClass
     }: MetaProperties
 ) => {
     return (
@@ -43,17 +45,17 @@ export const Meta = (
             <html {...(locale ? { lang: locale } : {})}>
                 <head>
                     {title && <title>{title}</title>}
-                    <meta charSet={charSet ?? DEFAULT_META.CHRSET} />
+                    <meta charSet={charSet ?? DEFAULT_META.CHARSET} />
                     {content && <meta name="description" content={content} />}
                     <meta name="viewport" content={viewport ?? DEFAULT_META.VIEWPORT} />
                     {keywords && <meta name="keywords" content={keywords} />}
                     {author && <meta name="author" content={author} />}
                     <link rel="icon" type="x-icon" href="/../favicon.ico" />
-                    <link rel="stylesheet" href="../styles/palette.css" />
+                    <link rel="stylesheet" href="/styles/palette.css" />
                     {isDev && <script type="module" src="/@vite/client" defer />}
+                    <script src="/scripts/get-system-theme.js" />
                 </head>
-                <script src="../scripts/get-system-theme.js" />
-                <body style={style}>{children}</body>
+                <body class={bodyClass} style={bodyStyle}>{children}</body>
             </html>
         </>
     )

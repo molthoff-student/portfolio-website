@@ -1,7 +1,8 @@
-let theme = localStorage.getItem("theme");
+const storageItem = 'user-theme';
+let theme = localStorage.getItem(storageItem);
 if (!theme) {
     const darkmode = window.matchMedia('(prefers-color-scheme: dark)').matches;
     theme = darkmode ? 'dark' : 'light';
-    localStorage.setItem("user-theme", theme);
+    localStorage.setItem(storageItem, theme);
 }
-document.documentElement.setAttribute('user-theme', theme);
+document.documentElement.setAttribute(storageItem, theme);

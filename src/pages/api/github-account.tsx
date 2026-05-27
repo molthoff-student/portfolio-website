@@ -27,9 +27,10 @@ export async function GithubAccount(c: Context): Promise<GitHubUser | null> {
     if (data) {
         const json = JSON.stringify({ data, timestamp: now });
         await kv.put(GIT_KEY, json);
+        return data
     }
 
-    return data;
+    return cached ? cached.data : null;
 }
 
 // Api page

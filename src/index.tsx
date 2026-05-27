@@ -38,8 +38,6 @@ index.use('*', async (c, next) => {
         return c.html(`<!DOCTYPE html>\n${pageData}`)
     }
 
-    const path = c.req.path;
-
     await next()
 });
 

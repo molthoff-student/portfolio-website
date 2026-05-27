@@ -8,12 +8,12 @@ type serializedLocale = {
     data: typeof en
 }
 
-type Msg = {
+export type Msg = {
     (path: string): string;
     <T>(path: string, asObject: true): T;
 };
 
-type Locale = {
+export type Locale = {
     locale: string,
     /**
      * Localization interface.

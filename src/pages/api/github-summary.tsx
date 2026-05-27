@@ -15,13 +15,21 @@ export async function GithubSummary(c: Context): Promise<GithubSummary | null> {
                 bio: account.bio,
                 created_at: account.created_at
             },
-            repositories: repositories.map(repo => ({
-                name: repo.name,
-                url: repo.html_url,
-                description: repo.description,
-                language: repo.language,
-                created_at: repo.created_at
-            }))
+            repositories: repositories
+                .map(repo => ({
+                    name: repo.name,
+                    url: repo.html_url,
+                    description: repo.description,
+                    language: repo.language,
+                    created_at: repo.created_at,
+                    updated_at: repo.updated_at,
+                    pushed_at: repo.pushed_at,
+                } as GithubRepositorySummary))
+                .sort((a, b) => {
+                    const ad = new Date(b.created_at);
+                    const bd = new Date(a.created_at);
+                    return ad.getTime() - bd.getTime();
+                })
         }
     }
 
@@ -34,6 +42,16 @@ export async function GithubSummaryPage(c: Context): Promise<Response> {
     return c.json(data);
 }
 
+export interface GithubRepositorySummary {
+    name: string,
+    url: string,
+    description: string | null,
+    language: string | null,
+    created_at: string,
+    updated_at: string,
+    pushed_at: string,
+}
+
 export interface GithubSummary {
     account: {
         name: string,
@@ -41,11 +59,5 @@ export interface GithubSummary {
         bio: string | null
         created_at: string
     },
-    repositories: {
-        name: string,
-        url: string,
-        description: string | null,
-        language: string | null,
-        created_at: string
-    }[]
+    repositories: GithubRepositorySummary[] | null
 }

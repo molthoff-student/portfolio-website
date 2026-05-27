@@ -1,6 +1,6 @@
-import locale from "../locale";
+import locale from '../locale';
 
-const exampleLogo = "../assets/placeholder.png";
+const logo = '../assets/logo.png';
 
 export const linkStyle = {    
     display: 'flex',
@@ -10,11 +10,6 @@ export const linkStyle = {
     fontW: 'bold',
 }
 
-const imageStyle = {
-    width: '32px', 
-    height: '32px'
-}
-
 export function CommonHeader() {
     const { msg } = locale.use();
     const logoText = msg('header.logotext');
@@ -22,15 +17,14 @@ export function CommonHeader() {
     const textStyle = { color: 'var(--text)' };
     return (
         <>
-            <header class="header">
-                <a className="title" href="/" style={linkStyle}>
+            <header class='header'>
+                <a class='link' href='/'>
                     <img
-                        className="title" 
-                        alt="Example logo" 
-                        src={exampleLogo}
-                        style={imageStyle}
+                        class='logo'
+                        alt='Example logo' 
+                        src={logo}
                     />
-                    <span style={textStyle}>{logoText}</span>
+                    <span class='span'>{logoText}</span>
                 </a>
             </header>
         </>

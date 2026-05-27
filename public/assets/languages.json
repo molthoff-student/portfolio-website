@@ -1,0 +1,5 @@
+[
+    { "name": "TypeScript", "link": "https://www.typescriptlang.org/" },
+    { "name": "JavaScript", "link": "https://www.javascript.com/" },
+    { "name": "Rust",       "link": "https://rust-lang.org/" }
+]
