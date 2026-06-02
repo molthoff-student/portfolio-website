@@ -1,20 +1,13 @@
 import { Context, Hono } from 'hono'
 import locales from './locale'
-import { JSX } from 'hono/jsx/jsx-runtime'
 import { contextStorage } from 'hono/context-storage';
-import { renderToString } from 'hono/jsx/dom/server';
-import { HomePage } from './pages/homepage';
-import { GithubAccountPage } from './pages/api/github-account';
-import { GithubRepoPage } from './pages/api/github-repositories';
-import { GithubSummaryPage } from './pages/api/github-summary';
+import { HomePage } from './_server/home';
+import { GithubAccountPage } from './_server/api/github-account';
+import { GithubRepoPage } from './_server/api/github-repositories';
+import { GithubSummaryPage } from './_server/api/github-summary';
 import { trimTrailingSlash } from 'hono/trailing-slash';
-
-// Add wrapper for jsx to the Context object.
-declare module 'hono' {
-    interface Context {
-        jsx: (jsx: JSX.Element) => Response
-    }
-}
+import { AboutPage } from './_server/about';
+import { jsxRenderer } from 'hono/jsx-renderer';
 
 export type Env = {
     Variables: {
@@ -31,15 +24,18 @@ index.use(trimTrailingSlash());
 // Adds contextStorage middleware for storing and accessing the context.
 index.use(contextStorage());
 
-// Implement jsx wrapper.
-index.use('*', async (c, next) => {
-    c.jsx = (jsx: JSX.Element) => {
-        const pageData = renderToString(jsx);
-        return c.html(`<!DOCTYPE html>\n${pageData}`)
-    }
+index.use(
+    '*', 
+    jsxRenderer(
+        ({ children }) => {
+            return (<>{children}</>);
+        },
+        {
+            docType: '<!DOCTYPE html>'
+        }
+    )
 
-    await next()
-});
+)
 
 // Implement locale slug.
 index.use('/:locale/*', async (c, next) => {
@@ -69,7 +65,8 @@ index.get('/', (c) => {
     return c.redirect(locales.default())
 });
 
-type PageResponse = ((c: Context) => Response) | ((c: Context) => Promise<Response>);
+// type PageResponse = ((c: Context) => Response) | ((c: Context) => Promise<Response>);
+type PageResponse = (c: Context) => Response | Promise<Response>
 type Page = {
     url: string,
     response: PageResponse,
@@ -77,6 +74,7 @@ type Page = {
 
 const pages: Page[] = [
     { url: '/:locale', response: HomePage },
+    { url: '/:locale/about', response: AboutPage },
     { url: '/api/github', response: GithubAccountPage },
     { url: '/api/repositories', response: GithubRepoPage },
     { url: '/api/summary', response: GithubSummaryPage },

@@ -1,7 +1,5 @@
-import { getContext } from 'hono/context-storage'
 import en from './locales/en.json';
 import nl from './locales/nl.json';
-import { Env } from ".";
 
 type serializedLocale = {
     name: string,
@@ -134,12 +132,8 @@ class locale {
     default(): string {
         return localeList[0].name;
     }
-    use(): Locale {
-        const context = getContext<Env>();
-        const locale = context.var.locale;
-
+    get(locale: string | null): Locale {
         if (!locale) localeError('request', locale);
-
         const dataLocale = this.data.get(locale);
         if (!dataLocale) localeError('missing', locale);
 
@@ -173,7 +167,7 @@ class locale {
         };
 
         return { locale, msg }
-    };
+    }
 }
 
 export default new locale;

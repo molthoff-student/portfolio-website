@@ -2,6 +2,16 @@ import { Context } from "hono";
 import { GithubAccount } from "./github-account";
 import { GithubRepo } from "./github-repositories";
 
+const GithubSummaryUrl = '/api/summary';
+
+export async function fetchGithubSummary(origin: string): Promise<GithubSummary | null> {
+    const url = origin + GithubSummaryUrl;
+    console.log(`url: ${url}`);
+    return await fetch(url)
+        .then(res => res.json())
+        .catch(_ => null) as GithubSummary | null;
+}
+
 // Fetcher function
 export async function GithubSummary(c: Context): Promise<GithubSummary | null> {
     const account = await GithubAccount(c);
@@ -10,9 +20,11 @@ export async function GithubSummary(c: Context): Promise<GithubSummary | null> {
     if (account && repositories) {
         return {
             account: {
-                name: account.login,
+                name: account.name,
+                user: account.login,
                 url: account.html_url,
                 bio: account.bio,
+                img: account.avatar_url,
                 created_at: account.created_at
             },
             repositories: repositories
@@ -42,6 +54,15 @@ export async function GithubSummaryPage(c: Context): Promise<Response> {
     return c.json(data);
 }
 
+export interface GithubAccountSummary {
+    name: string | null,
+    user: string,
+    url: string,
+    bio: string | null,
+    img: string,
+    created_at: string
+}
+
 export interface GithubRepositorySummary {
     name: string,
     url: string,
@@ -53,11 +74,6 @@ export interface GithubRepositorySummary {
 }
 
 export interface GithubSummary {
-    account: {
-        name: string,
-        url: string,
-        bio: string | null
-        created_at: string
-    },
+    account: GithubAccountSummary | null,
     repositories: GithubRepositorySummary[] | null
 }

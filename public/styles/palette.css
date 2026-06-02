@@ -1,3 +1,12 @@
+aspect-ratio {
+    --square: 1;
+}
+
+:root {
+    --title-font: "JetBrains Mono", monospace;
+    --regular-font: "Inter", sans-serif;
+}
+
 [user-theme] {
     --success: rgb(62, 165, 48);
     --warning: rgb(210, 104, 18);
@@ -9,7 +18,7 @@
     --secondary: rgba(100, 100, 100, 1);
     --accent: rgb(230, 230, 230);
     --background: rgba(255, 255, 255, 1);
-    --surface: rgba(100, 100, 100, 1);
+    --surface: rgba(127, 127, 127, 1);
     --border: rgb(59, 59, 59);
     --text: rgb(0, 0, 0);
     --link: rgba(128, 88, 194);
@@ -21,11 +30,21 @@
     --secondary: rgba(24, 24, 26, 1);
     --accent: rgba(12, 12, 13, 1);
     --background: rgba(35, 35, 39, 1);
-    --surface: rgba(100, 100, 100, 1);
+    --surface: rgba(127, 127, 127, 1);
     --border: rgb(211, 211, 211);
     --text: rgb(255, 255, 255);
     --link: rgba(167, 113, 255);
     --visited: rgb(73, 85, 255); 
+}
+
+.body {
+    padding: 0px;
+    margin: 0px;
+    background: var(--background);
+    color: var(--text);
+    box-sizing: border-box;
+    height: 100%;
+    font-family: var(--regular-font);
 }
 
 .header {
@@ -35,22 +54,48 @@
     display: flex;
     height: fit-content;
     width: 100%;
-    align-items: 'center';
+    align-items: center;
     padding: 8px;
     background: var(--primary);
     border-bottom: 2px solid var(--border);
+    box-sizing: border-box;
+    font-family: var(--title-font)
 }
 
-.body {
-    padding: 0px;
-    margin: 0px;
-    background: var(--background);
+.header .span {
     color: var(--text);
+    font-size: 32px;
+    font-family: var(--regular-font);
+}
+
+.header .link {    
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--link);
+}
+
+.header .logo {
+    width: 48px;
+    height: 48px;
+    aspect-ratio: var(--square);
+}
+
+.header .link:visited {    
+    text-decoration: none;
+    color: var(--visited);
+}
+
+.header .link:hover {    
+    text-decoration: none;
+    color: var(--visited);
 }
 
 .link {    
     text-decoration: none;
     color: var(--link);
+    font-family: var(--regular-font);
 }
 
 .link:visited {    
@@ -63,28 +108,23 @@
     color: var(--visited);
 }
 
-.logo {
-    width: 32px;
-    height: 32px;
-}
-
-.span {
-    color: var(--text);
-}
-
-.card_list {
+.repository_container {
     height: 100%;
+    width: 100%;
     overflow-y: scroll;
+    overflow-x: auto;
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
     padding: 10px;
     margin: 0;
     list-style: none;
-    border: 5px solid var(--border);
+    flex-direction: row;
+    align-content: start;
+    box-sizing: border-box;
 }
 
-.card_item {
+.repository_item {
     background: var(--primary);
     border-radius: 10px;
     height: 100%;
@@ -92,21 +132,23 @@
     overflow: hidden;
 }
 
-.card_item_logo {
-    width: 32px;
-    height: 32px;
-    margin-right: 10px;
-    border-radius: 5px;
-}
-
-.card_item_header {
+.repository_item_header {
     display: flex;
     width: 100%;
     text-align: center;
     align-items: center;
 }
 
-.card_item_title {
+.repository_item_logo {
+    width: 48px;
+    height: 48px;
+    margin-right: 10px;
+    border-radius: 10%;
+    background-color: var(--surface);
+    aspect-ratio: var(--square);
+}
+
+.repository_item_title {
     width: 100%;
     height: 100%;
     display: flex;
@@ -114,9 +156,12 @@
     text-align: center;
     text-decoration: none;
     color: var(--text);
+    font-weight: bold;
+    font-size: 24px;
+    font-family: var(--regular-font);
 }
 
-.card_item_description {
+.repository_item_description {
     width: auto;
     height: auto;
     display: flex;
@@ -124,4 +169,52 @@
     justify-content: left;
     margin: 10px;
     color: var(--text);
+    font-size: larger;
+    font-family: var(--regular-font);
+}
+
+.homepage_layout {
+    display: flex;
+    flex-direction: row;
+}
+
+.profile_content {
+    width: 420px;
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+    box-sizing: border-box;
+    border-right: 2px solid var(--border);
+    border-bottom: 0px;
+}
+
+.profile_image {
+    aspect-ratio: var(--square);
+    width: 100%;
+    height: auto;
+    min-height: auto;
+    max-width: fit-content;
+    border-radius: 5%;
+}
+
+.profile_text {
+    text-align: left;
+    font-size: 20px;
+    font-family: var(--regular-font);
+}
+
+@media (max-width: 768px) {
+    .homepage_layout {
+        flex-direction: column;
+    }
+    .profile_content {
+        border-right: 0px;
+        border-bottom: 2px solid var(--border);
+        width: 100vw;
+    }
+    .repository_container {
+        grid-template-columns: repeat(1, 1fr);
+        width: 100vw;
+    }
 }
