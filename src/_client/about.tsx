@@ -12,14 +12,10 @@ function About(
     }: AboutProps
 ) {
     const { msg } = locales.get(locale);
-    const [count, setCount] = useState(0);  
 
     return (
         <>
-            <p>{`locale: ${locale}`}</p>
-            <p>{msg("homepage.title")}</p>
-            <button value={count} onClick={() => setCount(count + 1)}/>
-            <p>{count}</p>
+
         </>
     );
 }

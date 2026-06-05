@@ -1,10 +1,10 @@
-import { Header } from "../components/header";
 import { Meta } from "../utility/meta";
 import { Context } from "hono";
-import { GithubSummary, GithubRepositorySummary } from "./api/github-summary";
+import { GithubRepositorySummary } from "./api/github-summary";
 import useLocale from "../useLocale";
 import { Render } from "../utility/client";
 import { HomeProps } from "../_client/home";
+import { orderMap, parseRepositoryQuery, sortMap } from "../components/queries/repositories";
 
 const param = {
     sort: 'sort',
@@ -28,51 +28,21 @@ const parseQuery = (c: Context) => {
     const urlString = testUrl.toString();
     const validQuery = urlString === url.toString();
 
-    const sort = sortMap.get(sortKey) ?? defaultSort;
-    const direction = orderMap.get(orderKey) ?? 1;
-    const compare = (
-        a: GithubRepositorySummary, 
-        b: GithubRepositorySummary
-    ) => direction * sort(a, b);
-
-    console.log(`sortKey: ${sortKey}\norderKey: ${orderKey}`);
     return {
         validQuery,
         urlString,
-        compare,
         sortKey,
         orderKey
     };
 }
 
-const dateSort = (
-    key: 'created_at' | 'updated_at' | 'pushed_at'
-) => (
-    a: GithubRepositorySummary,
-    b: GithubRepositorySummary
-): number => {
-    return (
-        new Date(b[key]).getTime() -
-        new Date(a[key]).getTime()
-    );
-};
-
-const defaultSort = dateSort('created_at');
-
-const sortMap = new Map([
-    ['created', dateSort('updated_at')],
-    ['updated', dateSort('created_at')],
-    ['pushed',  dateSort('pushed_at')]
-]);
-
-const orderMap = new Map([
-    ['ascending',   1],
-    ['descending', -1],
-]);
-
 export async function HomePage(c: Context): Promise<Response> {
+    
+    const { 
+        validQuery, 
+        urlString 
+    } = parseRepositoryQuery(c.req.url);
 
-    const { validQuery, urlString, compare } = parseQuery(c);
     if (!validQuery) {
         return c.redirect(urlString);
     }
@@ -86,14 +56,10 @@ export async function HomePage(c: Context): Promise<Response> {
             locale={locale}
             bodyClass='body'
         >
-            <Header locale={locale} />
-            <Render<HomeProps> 
+            <Render<HomeProps>
                 path='src/_client/home.tsx' 
                 data={{
-                    locale,
-                }}
-                attributes={{
-                    class: 'homepage_layout'
+                    locale
                 }}
             />
         </Meta>

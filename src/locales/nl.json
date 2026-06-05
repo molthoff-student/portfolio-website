@@ -8,5 +8,19 @@
     },
     "header": {
         "logotext": "Home"
+    },
+    "theme": {
+        "light": "Licht",
+        "dark": "Donker"
+    },
+    "nav": {
+        "github": "Github",
+        "about": "Over",
+        "blog": "Blog"
+    },
+    "sort": {
+        "created": "Gemaakt",
+        "updated": "Geüpdated",
+        "pushed": "Gepushed"
     }
 }

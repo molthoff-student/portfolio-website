@@ -19,18 +19,43 @@ export async function GithubAccount(c: Context): Promise<GitHubUser | null> {
         return cached.data;
     }
 
+    const res = await fetch(API_URL, API_INIT).catch(() => null);
+
+    if (!res) return cached?.data ?? null;
+
+    const json = await res.json().catch(() => null);
+
+    const rateLimited =
+        !res.ok ||
+        !json ||
+        (typeof json === "object" && "message" in json);
+
+    if (rateLimited) return cached?.data ?? null;
+
+    const data = json as GitHubUser;
+
+    await kv.put(
+        GIT_KEY,
+        JSON.stringify({
+            data,
+            timestamp: now,
+        })
+    );
+
+    return data;
+
     // Ignore the error if there is one, the server most likely lost connection.
-    const data = await fetch(API_URL, API_INIT)
-        .then(res => res.json())
-        .catch(_ => null) as GitHubUser | null;
+    // const data = await fetch(API_URL, API_INIT)
+    //     .then(res => res.json())
+    //     .catch(_ => null) as GitHubUser | null;
 
-    if (data) {
-        const json = JSON.stringify({ data, timestamp: now });
-        await kv.put(GIT_KEY, json);
-        return data
-    }
+    // if (data) {
+    //     const json = JSON.stringify({ data, timestamp: now });
+    //     await kv.put(GIT_KEY, json);
+    //     return data
+    // }
 
-    return cached ? cached.data : null;
+    // return cached ? cached.data : null;
 }
 
 // Api page

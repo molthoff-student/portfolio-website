@@ -1,5 +1,7 @@
+import { createContext, JSXNode, ReactElement, ReactNode, useContext } from 'hono/jsx';
 import en from './locales/en.json';
 import nl from './locales/nl.json';
+import { JSX } from 'hono/jsx/jsx-runtime';
 
 type serializedLocale = {
     name: string,
@@ -124,7 +126,7 @@ class locale {
     // Flattens lookup key's for faster lookups on single strings.
     readonly flat = flattenLocaleMap(this.data);
     keys() {
-        return this.data.keys();
+        return [...this.data.keys()];
     };
     has(key: string): boolean {
         return this.data.has(key);
@@ -170,4 +172,42 @@ class locale {
     }
 }
 
-export default new locale;
+const locales = new locale;
+
+const TranslationContext = createContext<string | null>(
+    null
+);
+
+type TranslationProviderProps = {
+    locale: string;
+    children: JSX.Element;
+};
+
+export function TranslationProvider(
+    {
+        locale,
+        children,
+    }: TranslationProviderProps
+) {
+    return (
+        <TranslationContext.Provider value={locale}>
+            {children}
+        </TranslationContext.Provider>
+    );
+};
+
+export const useTranslation = (): Locale => {
+    const locale = useContext(TranslationContext);
+
+    if (!locale) {
+        throw new Error(
+            "useTranslation must be used within a TranslationProvider"
+        );
+    }
+
+    const { msg } = locales.get(locale);
+
+    return { locale, msg };
+};
+
+export default locales;

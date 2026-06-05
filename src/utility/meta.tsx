@@ -53,7 +53,7 @@ export const Meta = (
                     <link rel="icon" type="x-icon" href="/../favicon.ico" />
                     <link rel="stylesheet" href="/styles/palette.css" />
                     {isDev && <script type="module" src="/@vite/client" defer />}
-                    <script src="/scripts/get-system-theme.js" />
+                    <script src="../scripts/get-user-theme.js" />
                 </head>
                 <body class={bodyClass} style={bodyStyle}>{children}</body>
             </html>

@@ -1,4 +1,4 @@
-import languageData from "../../public/assets/languages.json";
+import languageData from '../assets/languages.json';
 
 export type language = {
     img: string,
@@ -13,6 +13,7 @@ const languages = new Map<string, language>(
             img: languageIcons + lang.name + '.png', 
             url: lang.link
         };
+        // console.log(`img: ${language.img}\nurl: ${language.url}`);
         return [lang.name, language];
     })
 );

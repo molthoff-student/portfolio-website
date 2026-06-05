@@ -59,20 +59,57 @@ aspect-ratio {
     background: var(--primary);
     border-bottom: 2px solid var(--border);
     box-sizing: border-box;
-    font-family: var(--title-font)
+    font-family: var(--title-font);
+    justify-content: space-between;
+}
+
+.header.subheader {
+    left: 0;
+    top: 0;
+    position: static;
+    display: flex;
+    height: fit-content;
+    width: 100%;
+    align-items: center;
+    padding: 8px;
+    background: var(--primary);
+    border-bottom: 2px solid var(--border);
+    box-sizing: border-box;
+    font-family: var(--title-font);
+    justify-content: left;
+    gap: 2px;
+}
+
+.logoselect {
+    left: 0;
+    top: 0;
+    position: sticky;
+    display: flex;
+    height: fit-content;
+    width: 100%;
+    align-items: center;
+    padding: 8px;
+    background: var(--primary);
+    /* border-bottom: 2px solid var(--border); */
+    box-sizing: border-box;
+    font-family: var(--title-font);
+    justify-content: left;
+    gap: 2px;
 }
 
 .header .span {
     color: var(--text);
     font-size: 32px;
     font-family: var(--regular-font);
+    background: var(--primary);
+    border-radius: 5px;
 }
 
 .header .link {    
     text-decoration: none;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 12px;
     color: var(--link);
 }
 
@@ -92,10 +129,33 @@ aspect-ratio {
     color: var(--visited);
 }
 
+.header .nav {
+  display: flex;
+  gap: 32px;
+  align-items: center;
+}
+
+.header .menu {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.header .burger {
+    color: var(--text);
+    font-size: 27.5px;
+    font-family: var(--regular-font);
+    background: var(--primary);
+    border-radius: 5px;
+    border: 1px solid var(--border);
+}
+
 .link {    
     text-decoration: none;
     color: var(--link);
     font-family: var(--regular-font);
+    display: flex;
+    justify-content: inherit;
 }
 
 .link:visited {    
@@ -146,6 +206,7 @@ aspect-ratio {
     border-radius: 10%;
     background-color: var(--surface);
     aspect-ratio: var(--square);
+    display: block;
 }
 
 .repository_item_title {
@@ -180,31 +241,40 @@ aspect-ratio {
 
 .profile_content {
     width: 420px;
-    overflow: auto;
     display: flex;
     flex-direction: column;
     padding: 16px;
     box-sizing: border-box;
     border-right: 2px solid var(--border);
-    border-bottom: 0px;
+    overflow: auto;
 }
 
 .profile_image {
-    aspect-ratio: var(--square);
     width: 100%;
     height: auto;
-    min-height: auto;
-    max-width: fit-content;
     border-radius: 5%;
+    aspect-ratio: var(--square);
+    display: block;
+    border:  2px solid var(--border);
+    scrollbar-gutter: stable;
+    margin-right: auto;
 }
 
-.profile_text {
-    text-align: left;
-    font-size: 20px;
-    font-family: var(--regular-font);
+.smallSelector {
+    width: fit-content;
+    aspect-ratio: var(--square);
+    border:  2px solid var(--border);
+    background-color: var(--background);
+    color: var(--text);
+    border-radius: 5px;
+    font-size: 16px;
 }
 
 @media (max-width: 768px) {
+    .header .span {
+        border: 1px solid var(--border);
+        gap: 0px;
+    }
     .homepage_layout {
         flex-direction: column;
     }

@@ -42,13 +42,14 @@ export function mount<T extends object>(
         throw new Error("Failed to obtain page document");
     }
 
-    const props = document.getElementById(PAGE_PROPERTIES);
-    if (!props) throw new Error("Failed to get page properties");
-
-    const json = JSON.parse(props.textContent || "{}") as T;
-
     const root = document.getElementById("root");
     if (!root) throw new Error("Failed to get page root");
 
-    createRoot(root).render(createElement(element, json));
+    const props = document.getElementById(PAGE_PROPERTIES);
+    if (props) {
+        const json = JSON.parse(props.textContent || "{}") as T;
+        createRoot(root).render(createElement(element, json));
+    } else {
+        createRoot(root).render(createElement(element, {}));
+    }
 }

@@ -1,7 +1,10 @@
-import { useEffect, useState } from "hono/jsx";
-import { fetchGithubSummary, GithubAccountSummary, GithubRepositorySummary, GithubSummary } from "../_server/api/github-summary"
-import { mount } from "../utility/client"
-import { getLang } from "../utility/language";
+import { useEffect, useMemo, useState } from 'hono/jsx';
+import { fetchGithubSummary, GithubAccountSummary, GithubRepositorySummary, GithubSummary } from '../_server/api/github-summary'
+import { mount } from '../utility/client'
+import { getLang } from '../utility/language';
+import { Header } from '../components/header';
+import { orderMap, parseRepositoryQuery, sortMap } from '../components/queries/repositories';
+import { TranslationProvider, useTranslation } from '../locale';
 
 export type HomeProps = {
     locale: string,
@@ -9,48 +12,53 @@ export type HomeProps = {
 
 function Home(
     {
-        locale,
+        locale
     }: HomeProps
 ) {
-    const origin = window.location.origin;
 
     const [summary, setSummary] = useState<GithubSummary | null>(null);
 
     useEffect(() => {
-        async function load() {
+        async function getSummary() {
+            const origin = window.location.origin;
             const summary = await fetchGithubSummary(origin);
             setSummary(summary);
         }
 
-        load();
-    }, []);
+        getSummary();
+    }, [origin]);
 
-    const account = summary?.account || null;
-    const repositories = summary?.repositories || null;
+    const account = summary?.account ?? null;
+    const repositories = summary?.repositories ?? null;
 
     return (
         <>
-            <aside class='profile_content'>
-                {account
-                    ?   <Account
-                            account={account}
-                        />
-                    :   <></>
-                }
-            </aside>
-            <main>
-                {repositories
-                    ?   <RepoList 
-                            repositories={repositories}
-                        />
-                    :   <></>
-                }
-            </main>
+            <TranslationProvider locale={locale}>
+                <>
+                    <Header />
+                    <div class='homepage_layout'>
+                        <aside class='profile_content'>
+                            {account
+                                ?   <Account
+                                        account={account}
+                                    />
+                                :   <></>
+                            }
+                        </aside>
+                        <main>
+                            {repositories
+                                ?   <RepoList 
+                                        repositories={repositories}
+                                    />
+                                :   <></>
+                            }
+                        </main>
+                    </div>
+                </>
+            </TranslationProvider>
         </>
     );
 }
-
-mount(document, Home);
 
 type RepoItemProperties = {
     repository: GithubRepositorySummary
@@ -86,24 +94,94 @@ function RepoItem(
 
 type RepoListProperties = {
     repositories: GithubRepositorySummary[],
-    // compare: (a: GithubRepositorySummary, b: GithubRepositorySummary) => number,
 }
+function RepoList({ repositories }: RepoListProperties) {
+    const { locale, msg } = useTranslation();
 
-function RepoList(
-    {
-        repositories,
-        // compare,
-    }: RepoListProperties
-) {
-    // const list = repositories.sort(compare);
+    const [query, setQuery] = useState(() =>
+        parseRepositoryQuery(window.location.href)
+    );
+
+    useEffect(
+        () => {
+            const onPopState = () => {
+                setQuery(parseRepositoryQuery(window.location.href));
+            };
+
+            window.addEventListener('popstate', onPopState);
+            return () => window.removeEventListener('popstate', onPopState);
+        }, 
+        []
+    );
+
+    const updateQuery = (key: string, value: string) => {
+
+        setQuery(prev => {
+            const nextSort = key === 'sort' ? value : prev.sortKey;
+            const nextOrder = key === 'ordering' ? value : prev.orderKey;
+
+            const params = new URLSearchParams();
+            params.set('sort', nextSort);
+            params.set('ordering', nextOrder);
+
+            const nextUrl = window.location.origin 
+                + window.location.pathname
+                + '?'
+                + params.toString();
+
+            const parsed = parseRepositoryQuery(nextUrl);
+
+            
+            window.history.pushState({}, '', parsed.urlString);
+
+            return parsed;
+        });
+    };
+
+    const sortedRepositories = useMemo(() => {
+        const sort = sortMap.get(query.sortKey)!;
+        const direction = orderMap.get(query.orderKey)!;
+        return [...repositories].sort((a, b) => direction * sort(a, b));
+    }, [repositories, query]);
+
     return (
-        <ul class={'repository_container'}>
-            {repositories.map((repository, index) => (
-                <li key={index}>
-                    <RepoItem repository={repository} />
-                </li>
-            ))}
-        </ul>
+        <>
+            <div style={{justifyContent: "right", display: "flex", marginRight: 10, marginTop: 10}}>
+                <select
+                    class='smallSelector'
+                    value={query.sortKey}
+                    onChange={(e) => {
+                        const target = e.target as HTMLSelectElement;
+                        updateQuery('sort', target.value);
+                    }}
+                >
+                    {Array.from(sortMap.keys()).map((key) => {
+                        return <option value={key}>{msg(`sort.${key}`)}</option>;
+                    })}
+                </select>
+                <button
+                    type='button'
+                    class='smallSelector'
+                    onClick={() =>
+                        updateQuery(
+                            'ordering',
+                            query.orderKey === 'ascending'
+                                ? 'descending'
+                                : 'ascending'
+                        )
+                    }
+                >
+                    {query.orderKey === 'ascending' ? '∧' : '∨'}
+                </button>
+            </div>
+            <ul className='repository_container'>
+                {sortedRepositories.map((repository) => (
+                    <li key={repository.name}>
+                        <RepoItem repository={repository} />
+                    </li>
+                ))}
+            </ul>
+        </>
     );
 }
 
@@ -135,3 +213,5 @@ function Account(
         </>
     );
 }
+
+mount(document, Home);
