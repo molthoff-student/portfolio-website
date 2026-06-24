@@ -4,7 +4,7 @@
   "scripts": {
     "dev:frontend": "start cmd /k vite",
     "dev:worker": "start cmd /k wrangler dev --test-scheduled",
-    "build": "start cmd /k vite build",
+    "build": "vite build",
     "preview": "$npm_execpath run build && vite preview",
     "deploy": "$npm_execpath run build && wrangler deploy",
     "cf-typegen": "wrangler types --env-interface CloudflareBindings"
